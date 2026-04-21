@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Coffee Risk{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="form-page">
+
+<header class="main-header">
+  <div class="header-left">
+    <a href="/" class="brand">CoffeeRisk</a>
+  </div>
+  <div class="header-right">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="/form" class="nav-link active">Formular</a>
+    <a href="#" onclick="logout()" class="nav-link nav-primary">Delogare</a>
+  </div>
+</header>
+
+{% block content %}{% endblock %}
+
+<script>
+  function getToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'access_token') return value;
+    }
+    return null;
+  }
+
+  function checkAuthentication() {
+    const token = getToken();
+    if (!token) {
+      window.location.href = '/';
+      return false;
+    }
+    return true;
+  }
+
+  function logout() {
+    document.cookie = 'access_token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  window.addEventListener("load", checkAuthentication);
+</script>
+
+</body>
+</html>

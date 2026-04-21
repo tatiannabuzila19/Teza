@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard consum cafea</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-left">
+      <a href="/dashboard" class="brand">Coffee Risk</a>
+    </div>
+    <nav class="header-right">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/form" class="nav-link">Evaluare personală</a>
+      <a href="#" onclick="logout()" class="nav-link nav-primary">Delogare</a>
+    </nav>
+  </header>
+
+  <div class="wrapper">
+    <h1>CONSUMUL DE CAFEA ȘI FACTORI COMPORTAMENTALI ASUPRA SĂNĂTĂȚII</h1>
+    <p class="subtitle">
+      Dashboard bazat pe datele din sondajul <i>coffee_consumption</i>, cu filtre după sex, grup de vârstă și domeniu.
+    </p>
+
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="sex-filter">Sex</label>
+        <select id="sex-filter">
+          <option value="">Toți</option>
+          <option value="Masculin">Masculin</option>
+          <option value="Femenin">Femenin</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="age-filter">Grup de vârstă</label>
+        <select id="age-filter">
+          <option value="">Toți</option>
+          <option value="<30">&lt; 30</option>
+          <option value="30-45">30–45</option>
+          <option value=">45">&gt; 45</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="domeniu-filter">Domeniu</label>
+        <select id="domeniu-filter">
+          <option value="">Toate domeniile</option>
+          <option value="Administratie / Birou">Administratie / Birou</option>
+          <option value="IT / Tehnologie">IT / Tehnologie</option>
+          <option value="Servicii / Comert">Servicii / Comert</option>
+          <option value="Educatie">Educatie</option>
+          <option value="Transport / Logistica">Transport / Logistica</option>
+          <option value="Productie / Industrie">Productie / Industrie</option>
+          <option value="Sanatate">Sanatate</option>
+          <option value="Elev / Student">Elev / Student</option>
+          <option value="Alt domeniu">Alt domeniu</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="total-records" class="total-records">
+      Date filtrate: 0 respondenți.
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h3>Distribuția orelor de somn pe noapte</h3>
+        <div id="chart-ore-somn" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Distribuția nivelului de stres</h3>
+        <div id="chart-nivel-stres" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Motivele consumului de cafea</h3>
+        <div id="chart-motive" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Distribuția ceștilor de cafea/zi</h3>
+        <div id="chart-cesti" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Efecetele percepute după consum</h3>
+        <div id="chart-efecte" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Locul principal al consumului</h3>
+        <div id="chart-loc" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Dependență și reducere consum</h3>
+        <div id="chart-dependenta" class="chart-container"></div>
+      </div>
+
+      <div class="card">
+        <h3>Fumat, alcool și sănătate generală</h3>
+        <div id="chart-alcool" class="chart-container"></div>
+      </div>
+    </div>
+
+    <!-- poți păstra linkul sau îl poți șterge, acum ai și buton în header -->
+    <a href="/form" class="cta-button slim">Mergi la evaluarea personală</a>
+  </div>
+
+  <script>
+  function getToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'access_token') return value;
+    }
+    return null;
+  }
+
+  function checkAuthentication() {
+    const token = getToken();
+    if (!token) {
+      window.location.href = '/';
+      return false;
+    }
+    return true;
+  }
+
+  function logout() {
+    document.cookie = 'access_token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  async function loadDashboardData() {
+    const sex = document.getElementById("sex-filter").value || "";
+    const age = document.getElementById("age-filter").value || "";
+    const domeniu = document.getElementById("domeniu-filter").value || "";
+
+    const params = new URLSearchParams();
+    if (sex) params.append("sex", sex);
+    if (age) params.append("age_group", age);
+    if (domeniu) params.append("domeniu", domeniu);
+
+    const token = getToken();
+    const resp = await fetch(`/dashboard-data?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (resp.status === 401) {
+      document.cookie = 'access_token=; path=/; max-age=0';
+      window.location.href = '/';
+      return;
+    }
+    
+    if (!resp.ok) {
+      alert('Eroare la încărcarea datelor. Vă rugăm reîncercați.');
+      return;
+    }
+    
+    const data = await resp.json();
+
+    document.getElementById("total-records").textContent =
+      `Date filtrate: ${data.total_records} respondenți`;
+
+    // 1. Ore de somn – bar vertical
+    drawBarChart("chart-ore-somn", data.ore_somn, "Ore / noapte");
+
+    // 2. Nivel stres – pie chart
+    drawPieChart("chart-nivel-stres", data.nivel_stres);
+
+    // 3. Motive consum – bar orizontal
+    drawHorizontalBarChart("chart-motive", data.motive, "Motive");
+
+    // 4. Cești de cafea/zi – bar vertical
+    drawBarChart("chart-cesti", data.cesti_tip_cafea, "Cești de cafea / zi");
+
+    // 5. Efecte după consum – bar orizontal
+    drawHorizontalBarChart("chart-efecte", data.efecte, "Efecte");
+
+    // 6. Loc principal al consumului – pie chart
+    drawPieChart("chart-loc", data.loc_consum);
+
+    // 7. Dependență și reducere – stacked bar
+    drawStackedBar("chart-dependenta", data.dependenta_reducere,
+                   "Nivel dependență", "Reducere consum");
+
+    // 8. Fumat, alcool și sănătate – stacked bar
+    drawStackedBar("chart-alcool", data.alcool_fumat_sanatate,
+                   "Fumat / alcool", "Sănătate generală");
+  }
+
+  function drawPieChart(containerId, chartData) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+    const trace = {
+      labels: chartData.labels,
+      values: chartData.values,
+      type: "pie",
+      textinfo: "percent",
+      hoverinfo: "label+percent",
+      marker: { colors: ["#d9a066","#b36b3f","#804d24","#402312","#f2c27b"] }
+    };
+
+    Plotly.newPlot(container, [trace], {
+      margin: { l: 10, r: 80, t: 10, b: 10 },
+      legend: { orientation: "v", x: 1.1, y: 0.5, font: { size: 10 } },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: "#f0e3c4", size: 11 }
+    }, { displayModeBar: false });
+  }
+
+  function drawBarChart(containerId, chartData, xTitle) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+    const trace = {
+      x: chartData.labels,
+      y: chartData.values,
+      type: "bar",
+      marker: { color: "#f5a623" }
+    };
+
+    Plotly.newPlot(container, [trace], {
+      margin: { l: 50, r: 20, t: 20, b: 60 },
+      xaxis: { title: xTitle, tickangle: -25 },
+      yaxis: { title: "Număr respondenți" },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: "#f0e3c4", size: 11 }
+    }, { displayModeBar: false });
+  }
+
+  function drawHorizontalBarChart(containerId, chartData, yTitle) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if (!chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+    const trace = {
+      x: chartData.values,
+      y: chartData.labels,
+      type: "bar",
+      orientation: "h",
+      marker: { color: "#b36b3f" }
+    };
+
+    Plotly.newPlot(container, [trace], {
+      margin: { l: 120, r: 20, t: 20, b: 40 },
+      xaxis: { title: "Număr respondenți" },
+      yaxis: { title: yTitle },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: "#f0e3c4", size: 11 }
+    }, { displayModeBar: false });
+  }
+
+  // generic stacked bar: data = { x_labels: [...], series: [{name, values}, ...] }
+  function drawStackedBar(containerId, stackedData, xTitle, legendTitle) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if (!stackedData || !stackedData.x_labels || !stackedData.series) return;
+
+    const traces = stackedData.series.map((serie, idx) => ({
+      x: stackedData.x_labels,
+      y: serie.values,
+      name: serie.name,
+      type: "bar",
+      marker: { color: pickStackColor(idx) }
+    }));
+
+    Plotly.newPlot(container, traces, {
+      barmode: "stack",
+      margin: { l: 70, r: 20, t: 25, b: 90 },
+      xaxis: { title: xTitle, tickangle: -35 },
+      yaxis: { title: "Număr respondenți" },
+      legend: { title: { text: legendTitle }, font: { size: 9 } },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: "#f0e3c4", size: 10 }
+    }, { displayModeBar: false });
+  }
+
+  function pickStackColor(i) {
+    const colors = ["#f5a623", "#b36b3f", "#804d24", "#d9a066", "#402312"];
+    return colors[i % colors.length];
+  }
+
+  window.addEventListener("load", () => {
+    if (checkAuthentication()) {
+      loadDashboardData();
+    }
+  });
+  ["sex-filter","age-filter","domeniu-filter"].forEach(id => {
+    document.getElementById(id).addEventListener("change", loadDashboardData);
+  });
+  </script>
+</body>
+</html>
