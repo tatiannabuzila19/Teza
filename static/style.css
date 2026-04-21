@@ -301,46 +301,47 @@ body.form-page {
 
 .result-card.inline {
   margin-top: 32px;
-  background: #050404;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 24px;
   padding: 32px 40px;
   display: flex;
   align-items: center;
   gap: 40px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 /* culori pe nivel de risc */
 
 .result-card.inline.low {
-  background: linear-gradient(135deg, rgba(26, 188, 156, 0.15), rgba(6, 32, 24, 0.95));
-  border: 2px solid #1abc9c;
-  box-shadow: 0 16px 48px rgba(26, 188, 156, 0.2);
+  background: rgba(26, 188, 156, 0.12);
+  border: 2px solid rgba(26, 188, 156, 0.4);
+  box-shadow: 0 16px 48px rgba(26, 188, 156, 0.15);
 }
 
 .result-card.inline.medium {
-  background: linear-gradient(135deg, rgba(241, 196, 15, 0.15), rgba(36, 29, 8, 0.95));
-  border: 2px solid #f1c40f;
-  box-shadow: 0 16px 48px rgba(241, 196, 15, 0.2);
+  background: rgba(255, 152, 0, 0.12);
+  border: 2px solid rgba(255, 152, 0, 0.4);
+  box-shadow: 0 16px 48px rgba(255, 152, 0, 0.15);
 }
 
 .result-card.inline.high {
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(43, 5, 5, 0.95));
-  border: 2px solid #e74c3c;
-  box-shadow: 0 16px 48px rgba(231, 76, 60, 0.2);
+  background: rgba(255, 87, 87, 0.12);
+  border: 2px solid rgba(255, 87, 87, 0.4);
+  box-shadow: 0 16px 48px rgba(255, 87, 87, 0.15);
 }
 
 .result-card.inline.low .risk-message {
-  color: #c8ffea;
+  color: #ffffff;
 }
 
 .result-card.inline.medium .risk-message {
-  color: #fff3c2;
+  color: #ffffff;
 }
 
 .result-card.inline.high .risk-message {
-  color: #ffd7d7;
+  color: #ffffff;
 }
 
 /* părțile interne ale rezultatului */
@@ -380,13 +381,13 @@ body.form-page {
   position: absolute;
   inset: 20px;
   border-radius: 50%;
-  background: rgba(5, 5, 5, 0.8);
+  background: rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .risk-percent {
@@ -408,11 +409,12 @@ body.form-page {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
+  filter: drop-shadow(0 0 12px currentColor);
 }
 
 .risk-svg .bg {
   fill: none;
-  stroke: rgba(255,255,255,0.08);
+  stroke: rgba(255,255,255,0.1);
   stroke-width: 3;
 }
 
@@ -423,19 +425,22 @@ body.form-page {
   stroke-dasharray: 100 100;
   stroke-dashoffset: 100;
   transition: stroke-dashoffset 0.8s ease-out, stroke 0.4s ease;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.1));
+  filter: drop-shadow(0 0 6px currentColor);
 }
 
 .risk-svg .fg.low {
-  stroke: #1abc9c;
+  stroke: #26C281;
+  color: #26C281;
 }
 
 .risk-svg .fg.medium {
-  stroke: #f1c40f;
+  stroke: #FF9800;
+  color: #FF9800;
 }
 
 .risk-svg .fg.high {
-  stroke: #e74c3c;
+  stroke: #FF5757;
+  color: #FF5757;
 }
 
 /* ========== HEADER GENERAL APLICAȚIE ========== */

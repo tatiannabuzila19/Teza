@@ -74,6 +74,7 @@ async def submit_form(
 
     return FormSubmissionResponse(
         score=symptom_score,
+        prediction=ml_pred,
         message=message,
         submission_id=submission_id,
     )

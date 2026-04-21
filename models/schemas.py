@@ -62,7 +62,8 @@ class PredictionRequest(BaseModel):
     nivel_stres: int = Field(..., ge=1, le=10)
 
 class FormSubmissionResponse(BaseModel):
-    score: float
+    score: float  # Symptom-based score (0-1)
+    prediction: float  # ML model prediction (stress level 0-10)
     message: str
     submission_id: int
 

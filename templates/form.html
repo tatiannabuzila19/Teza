@@ -400,31 +400,35 @@
 
       console.log('[FORM DEBUG] Prediction successful:', result);
       
-      // Update result display - using prediction, not score
-      const prediction = result.prediction || result.score || 0;
-      const percent = Math.round(prediction * 10); // Convert 0-10 to 0-100
-      let level = 'Scăzut';
-      let levelClass = 'low';
+      // Display ML model prediction (0-10 stress level)
+      const mlPrediction = result.prediction || 5.0;  // ML model result
+      const symptomScore = result.score || 0;         // Symptom evaluation (0-1)
       
-      if (prediction < 3.3) {
-        level = 'Scăzut';
-        levelClass = 'low';
-      } else if (prediction < 6.6) {
-        level = 'Moderat';
-        levelClass = 'medium';
+      // Convert stress level (0-10) to percentage (0-100) for visualization
+      const mlPercent = Math.round((mlPrediction / 10) * 100);
+      
+      let stressLevel = 'Scăzut';
+      let stressClass = 'low';
+      
+      if (mlPrediction < 3.3) {
+        stressLevel = 'Scăzut';
+        stressClass = 'low';
+      } else if (mlPrediction < 6.6) {
+        stressLevel = 'Moderat';
+        stressClass = 'medium';
       } else {
-        level = 'Ridicat';
-        levelClass = 'high';
+        stressLevel = 'Ridicat';
+        stressClass = 'high';
       }
 
-      document.getElementById('riskPercent').textContent = percent + '%';
-      document.getElementById('riskLevel').textContent = level;
-      document.getElementById('riskMessage').textContent = result.message || 'Prediction completed';
+      document.getElementById('riskPercent').textContent = mlPercent + '%';
+      document.getElementById('riskLevel').textContent = stressLevel;
+      document.getElementById('riskMessage').textContent = `${result.message}\n\nML Model: ${mlPrediction.toFixed(1)}/10 | Simptome: ${(symptomScore * 10).toFixed(1)}/10`;
       
       // Update SVG path color class
       const riskPath = document.getElementById('riskPath');
-      riskPath.setAttribute('stroke-dasharray', percent + ', 100');
-      riskPath.className.baseVal = 'fg ' + levelClass;
+      riskPath.setAttribute('stroke-dasharray', mlPercent + ', 100');
+      riskPath.className.baseVal = 'fg ' + stressClass;
       
       // Show result
       document.getElementById('resultCard').style.display = 'block';
