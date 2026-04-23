@@ -1,446 +1,640 @@
 {% extends "base.html" %}
 
-{% block title %}Formular evaluare{% endblock %}
+{% block title %}Formular Evaluare Stres{% endblock %}
 
 {% block content %}
-<div style="position: absolute; top: 15px; right: 20px;">
-  <button onclick="logout()" style="padding: 8px 15px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Logout</button>
-</div>
+<main class="container">
+  <section class="form-section">
+    <h1>Evaluator de Stres - Formular Complet</h1>
+    <p class="form-subtitle">Completează toate câmpurile pentru o evaluare precisă a nivelului tău de stres</p>
 
-<main class="form-page-main">
-  <div class="form-card">
-    <h1>Evaluare personală</h1>
-    <p class="form-subtitle">
-      Completează câmpurile de mai jos pentru a estima efectele consumului de cafea asupra stării tale.
-    </p>
+    <form id="stressForm" class="stress-form">
+      <!-- BLOCK 1: COFFEE & SLEEP -->
+      <fieldset class="form-block">
+        <legend class="block-title">🌙 Somn și Cafea</legend>
 
-    <form id="evaluationForm" onsubmit="handleFormSubmit(event)">
-
-      <div class="questions-grid">
-        <!-- 1. Cești de cafea pe zi -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Câte cești de cafea bei, în medie, într-o zi?
-            </div>
-          </div>
-          <input type="number"
-                 class="q-select"
-                 id="coffee_cups"
-                 name="coffee_cups"
-                 min="0"
-                 step="1"
-                 placeholder="Introdu numărul de cești pe zi"
-                 required>
-          <input type="hidden" id="caffeine_mg" name="caffeine_mg">
-          <small style="opacity:0.8; font-size:11px;">
-            Estimare: ~95 mg cofeină pentru fiecare ceașcă standard de cafea.
-          </small>
+        <div class="form-group">
+          <label for="coffee_cups">Câte cești de cafea bei în medie pe zi?</label>
+          <input
+            type="number"
+            id="coffee_cups"
+            name="coffee_cups"
+            min="0"
+            max="20"
+            step="1"
+            required
+            placeholder="0-20 cești"
+            class="form-input"
+          />
+          <span class="input-hint">cești/zi</span>
         </div>
 
-        <!-- 2. Ore de somn pe noapte -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Câte ore dormi, în medie, în fiecare noapte?
-            </div>
-          </div>
-          <input type="number"
-                 class="q-select"
-                 id="sleep_hours"
-                 name="sleep_hours"
-                 min="0"
-                 max="24"
-                 step="0.5"
-                 placeholder="Introdu numărul de ore pe noapte"
-                 required>
+        <div class="form-group">
+          <label for="sleep_hours">Câte ore dormi în medie pe noapte?</label>
+          <input
+            type="number"
+            id="sleep_hours"
+            name="sleep_hours"
+            min="0"
+            max="24"
+            step="0.5"
+            required
+            placeholder="0-24 ore"
+            class="form-input"
+          />
+          <span class="input-hint">ore/noapte</span>
         </div>
 
-        <!-- 2b. Calitate somn -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">Care este calitatea somnului tău?</div>
-          </div>
-          <select class="q-select" id="sleep_quality" name="sleep_quality" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="Low">Scăzută</option>
-            <option value="Medium">Medie</option>
-            <option value="High">Bună</option>
+        <div class="form-group">
+          <label for="sleep_quality">Care este calitatea somnului tău?</label>
+          <select id="sleep_quality" name="sleep_quality" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Excelent">Excelent</option>
+            <option value="Bun">Bun</option>
+            <option value="Mediu">Mediu</option>
+            <option value="Slab">Slab</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <!-- BLOCK 2: ACTIVITY & BODY -->
+      <fieldset class="form-block">
+        <legend class="block-title">🏃 Activitate Fizică și Măsurători</legend>
+
+        <div class="form-group">
+          <label for="activity_hours">Câte ore de activitate fizică faci pe săptămână?</label>
+          <input
+            type="number"
+            id="activity_hours"
+            name="activity_hours"
+            min="0"
+            max="30"
+            step="0.5"
+            required
+            placeholder="0-30 ore"
+            class="form-input"
+          />
+          <span class="input-hint">ore/săptămână</span>
+        </div>
+
+        <div class="form-group">
+          <label for="height_cm">Care este înălțimea ta?</label>
+          <input
+            type="number"
+            id="height_cm"
+            name="height_cm"
+            min="120"
+            max="220"
+            step="1"
+            required
+            placeholder="120-220 cm"
+            class="form-input"
+          />
+          <span class="input-hint">cm</span>
+        </div>
+
+        <div class="form-group">
+          <label for="weight_kg">Care este greutatea ta?</label>
+          <input
+            type="number"
+            id="weight_kg"
+            name="weight_kg"
+            min="30"
+            max="200"
+            step="0.5"
+            required
+            placeholder="30-200 kg"
+            class="form-input"
+          />
+          <span class="input-hint">kg</span>
+        </div>
+
+        <div class="form-group">
+          <label for="heart_rate">Care este pulsul tău în repaus?</label>
+          <input
+            type="number"
+            id="heart_rate"
+            name="heart_rate"
+            min="40"
+            max="200"
+            step="1"
+            required
+            placeholder="40-200 bpm"
+            class="form-input"
+          />
+          <span class="input-hint">bpm</span>
+        </div>
+      </fieldset>
+
+      <!-- BLOCK 3: PERSONAL DATA -->
+      <fieldset class="form-block">
+        <legend class="block-title">👤 Date Personale</legend>
+
+        <div class="form-group">
+          <label for="age">Ce vârstă ai?</label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            min="18"
+            max="100"
+            step="1"
+            required
+            placeholder="18-100 ani"
+            class="form-input"
+          />
+          <span class="input-hint">ani</span>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Care este genul tău?</label>
+          <select id="gender" name="gender" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Masculin">Masculin</option>
+            <option value="Feminin">Feminin</option>
+            <option value="Altul">Altul</option>
           </select>
         </div>
 
-        <!-- 3. Activitate fizică pe săptămână -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Câte ore de activitate fizică (sport, mers alert etc.) faci, în medie, pe săptămână?
-            </div>
-          </div>
-          <input type="number"
-                 class="q-select"
-                 id="activity_hours"
-                 name="activity_hours"
-                 min="0"
-                 step="0.5"
-                 placeholder="Introdu numărul de ore pe săptămână"
-                 required>
+        <div class="form-group">
+          <label for="occupation">Care este ocupația ta?</label>
+          <select id="occupation" name="occupation" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Student">Student</option>
+            <option value="Birou">Birou</option>
+            <option value="Sănătate">Sănătate</option>
+            <option value="Servicii">Servicii</option>
+            <option value="Altul">Altul</option>
+          </select>
         </div>
+      </fieldset>
 
-        <!-- 4. Vârsta -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">Ce vârstă ai?</div>
-          </div>
-          <input type="number"
-                 class="q-select"
-                 id="age"
-                 name="age"
-                 min="10"
-                 max="100"
-                 step="1"
-                 placeholder="Introdu vârsta (ani)"
-                 required>
-        </div>
+      <!-- BLOCK 4: LIFESTYLE -->
+      <fieldset class="form-block">
+        <legend class="block-title">🚭 Stil de Viață</legend>
 
-        <!-- 5. Gen -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">Care este genul tău?</div>
-          </div>
-          <select class="q-select" id="gender" name="gender" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="female">Feminin</option>
-            <option value="male">Masculin</option>
-            <option value="other">Altul / Prefer să nu spun</option>
+        <div class="form-group">
+          <label for="smoking">Fumezi în mod regulat?</label>
+          <select id="smoking" name="smoking" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Da">Da</option>
+            <option value="Nu">Nu</option>
           </select>
         </div>
 
-        <!-- 6. Fumat -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">Fumezi în mod regulat?</div>
-          </div>
-          <select class="q-select" id="smoker" name="smoker" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="no">Nu</option>
-            <option value="occasionally">Ocazional</option>
-            <option value="yes">Da, zilnic</option>
+        <div class="form-group">
+          <label for="alcohol">Consumi băuturi alcoolice în mod obișnuit?</label>
+          <select id="alcohol" name="alcohol" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Da">Da</option>
+            <option value="Nu">Nu</option>
           </select>
         </div>
 
-        <!-- 7. Alcool -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">Consumi băuturi alcoolice în mod obișnuit?</div>
-          </div>
-          <select class="q-select" id="alcohol" name="alcohol" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="no">Nu</option>
-            <option value="occasionally">Ocazional</option>
-            <option value="yes">Da, frecvent</option>
+        <div class="form-group">
+          <label for="health_issues">Ai probleme de sănătate?</label>
+          <select id="health_issues" name="health_issues" required class="form-input">
+            <option value="">-- Selectează --</option>
+            <option value="Niciunul">Niciunul</option>
+            <option value="Ușoare">Ușoare</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Severe">Severe</option>
           </select>
         </div>
+      </fieldset>
 
-        <!-- 8. Palpitații / Tremor -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des ai palpitații sau tremur al mâinilor ori al corpului?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_palpitations_tremor" name="symptoms_palpitations_tremor" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-
-        <!-- 9. Insomnie / calitate somn -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des ai insomnie sau un somn de proastă calitate?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_insomnia" name="symptoms_insomnia" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-
-        <!-- 10. Agitație / iritabilitate -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des te simți agitat(ă), neliniștit(ă) sau iritabil(ă)?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_agitation" name="symptoms_agitation" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-
-        <!-- 11. Dificultăți de concentrare -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des ai dificultăți de concentrare la activitățile zilnice?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_concentration" name="symptoms_concentration" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-
-        <!-- 12. Dureri de cap -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des ai dureri de cap?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_headache" name="symptoms_headache" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-
-        <!-- 13. Probleme digestive -->
-        <div class="q-block">
-          <div class="q-top">
-            <div class="q-title">
-              Cât de des ai probleme digestive (arsuri, greață, disconfort gastric),
-              mai ales după ce consumi cafea?
-            </div>
-          </div>
-          <select class="q-select" id="symptoms_digestive" name="symptoms_digestive" required>
-            <option value="" disabled selected>Alege o opțiune</option>
-            <option value="0">Deloc</option>
-            <option value="1">Rar</option>
-            <option value="2">Uneori</option>
-            <option value="3">Des</option>
-            <option value="4">Foarte des</option>
-          </select>
-        </div>
-      </div>
-
-      <button type="submit" class="cta-button full">
-        Calculează riscul
-      </button>
-
-      <div id="resultCard" style="display: none;">
-        <div class="result-card inline">
-          <div class="result-left">
-            <div class="risk-circle">
-              <svg class="risk-svg" viewBox="0 0 36 36">
-                <path class="bg"
-                      d="M18 2.0845
-                         a 15.9155 15.9155 0 0 1 0 31.831
-                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path id="riskPath" class="fg"
-                      d="M18 2.0845
-                         a 15.9155 15.9155 0 0 1 0 31.831
-                         a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <div class="risk-circle-inner">
-                <div class="risk-percent" id="riskPercent">0%</div>
-                <div class="risk-level" id="riskLevel">-</div>
-              </div>
-            </div>
-          </div>
-          <div class="result-right">
-            <h2>Rezultat estimat</h2>
-            <p class="risk-message" id="riskMessage"></p>
-          </div>
-        </div>
-      </div>
-
-      <div id="errorMessage" style="color: red; margin-top: 10px; display: none;"></div>
+      <button type="submit" class="btn-submit">📊 Calculează Nivelul de Stres</button>
     </form>
-  </div>
+
+    <!-- RESULT SECTION (Hidden initially) -->
+    <div id="resultSection" class="result-section" style="display: none;">
+      <h2>Rezultatul Evaluării</h2>
+      
+      <div class="result-card">
+        <div class="result-score-container">
+          <svg class="result-circle" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" class="circle-background" />
+            <circle cx="50" cy="50" r="45" class="circle-progress" id="circleProgress" />
+          </svg>
+          <div class="result-score-text">
+            <span class="result-score-number" id="resultScore">0</span>
+            <span class="result-score-unit">/10</span>
+          </div>
+        </div>
+
+        <div class="result-info">
+          <h3 id="resultCategory" class="result-category">Stres Moderat</h3>
+          <p id="resultMessage" class="result-message">
+            Încărcare se calculează...
+          </p>
+          
+          <div class="result-details" id="resultDetails" style="display: none;">
+            <h4>Detalii Măsurători:</h4>
+            <ul>
+              <li><strong>BMI:</strong> <span id="detailsBMI">-</span></li>
+              <li><strong>Ritm Cardiac (Repaus):</strong> <span id="detailsHeartRate">-</span> bpm</li>
+              <li><strong>Somn (Săptămânal):</strong> <span id="detailsSleepWeek">-</span> ore</li>
+              <li><strong>Cafeină (Săptămânal):</strong> <span id="detailsCaffeineWeek">-</span> mg</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-new-form" onclick="resetForm()">👈 Completează din Nou</button>
+    </div>
+  </section>
 </main>
 
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 2em;
+    text-align: center;
+  }
+
+  .form-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+  }
+
+  .stress-form {
+    display: grid;
+    gap: 25px;
+  }
+
+  .form-block {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .block-title {
+    color: #26C281;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.95em;
+  }
+
+  .form-input,
+  select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    color: #ffffff;
+    font-size: 0.95em;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus,
+  select:focus {
+    outline: none;
+    border-color: #26C281;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(38, 194, 129, 0.3);
+  }
+
+  .input-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8em;
+    margin-top: 4px;
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  select option {
+    background: #1a1a2e;
+    color: #ffffff;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #26C281 0%, #20a76a 100%);
+    color: #ffffff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 1.05em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(38, 194, 129, 0.4);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .btn-new-form {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .btn-new-form:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .result-section {
+    margin-top: 40px;
+  }
+
+  .result-section h2 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .result-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .result-score-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+
+  .result-circle {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .circle-background {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 8;
+  }
+
+  .circle-progress {
+    fill: none;
+    stroke: #26C281;
+    stroke-width: 8;
+    stroke-dasharray: 282.7;
+    stroke-dashoffset: 282.7;
+    transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+  }
+
+  .result-score-text {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .result-score-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #26C281;
+  }
+
+  .result-score-unit {
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+  }
+
+  .result-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .result-category {
+    color: #26C281;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+  }
+
+  .result-message {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .result-details {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+
+  .result-details h4 {
+    color: #26C281;
+    margin-bottom: 10px;
+  }
+
+  .result-details ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .result-details li {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+    padding-left: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .result-card {
+      grid-template-columns: 1fr;
+    }
+
+    .result-score-container {
+      width: 150px;
+      height: 150px;
+    }
+
+    .result-score-number {
+      font-size: 2em;
+    }
+
+    h1 {
+      font-size: 1.5em;
+    }
+  }
+</style>
+
 <script>
-  const CUP_MG = 95;
-
-  const cupsInput = document.getElementById('coffee_cups');
-  const mgInput   = document.getElementById('caffeine_mg');
-
-  if (cupsInput && mgInput) {
-    cupsInput.addEventListener('input', () => {
-      const cups = parseFloat(cupsInput.value) || 0;
-      mgInput.value = Math.round(cups * CUP_MG);
-    });
-  }
-
-  function getToken() {
-    // Try to get from cookies
-    const name = 'access_token=';
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const cookies = decodedCookie.split(';');
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.indexOf(name) === 0) {
-        return cookie.substring(name.length);
-      }
-    }
-    // If no cookie, not authenticated
-    return null;
-  }
-
-  function checkAuthentication() {
-    if (!getToken()) {
-      window.location.href = '/';
-    }
-  }
-
-  function logout() {
-    // Clear cookie
-    document.cookie = 'access_token=; path=/; max-age=0';
-    window.location.href = '/';
-  }
-
-  async function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    const token = getToken();
-    if (!token) {
-      alert('Not authenticated. Please login.');
-      window.location.href = '/';
-      return;
-    }
+  document.getElementById('stressForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
     const formData = {
       coffee_cups: parseInt(document.getElementById('coffee_cups').value),
-      caffeine_mg: parseInt(document.getElementById('caffeine_mg').value),
       sleep_hours: parseFloat(document.getElementById('sleep_hours').value),
       sleep_quality: document.getElementById('sleep_quality').value,
       activity_hours: parseFloat(document.getElementById('activity_hours').value),
+      height_cm: parseInt(document.getElementById('height_cm').value),
+      weight_kg: parseFloat(document.getElementById('weight_kg').value),
+      heart_rate: parseInt(document.getElementById('heart_rate').value),
       age: parseInt(document.getElementById('age').value),
-      gender: document.getElementById('gender').value.toUpperCase() === 'MALE' ? 'M' : 
-              document.getElementById('gender').value.toUpperCase() === 'FEMALE' ? 'F' : 'Other',
-      smoker: document.getElementById('smoker').value.toUpperCase() === 'YES' ? 'Yes' : 
-              document.getElementById('smoker').value.toUpperCase() === 'NO' ? 'No' : 'No',
-      alcohol: document.getElementById('alcohol').value.toUpperCase() === 'YES' ? 'Yes' : 
-               document.getElementById('alcohol').value.toUpperCase() === 'NO' ? 'No' : 'No',
-      symptoms_palpitations_tremor: parseInt(document.getElementById('symptoms_palpitations_tremor').value),
-      symptoms_insomnia: parseInt(document.getElementById('symptoms_insomnia').value),
-      symptoms_agitation: parseInt(document.getElementById('symptoms_agitation').value),
-      symptoms_concentration: parseInt(document.getElementById('symptoms_concentration').value),
-      symptoms_headache: parseInt(document.getElementById('symptoms_headache').value),
-      symptoms_digestive: parseInt(document.getElementById('symptoms_digestive').value)
+      gender: document.getElementById('gender').value,
+      occupation: document.getElementById('occupation').value,
+      smoking: document.getElementById('smoking').value,
+      alcohol: document.getElementById('alcohol').value,
+      health_issues: document.getElementById('health_issues').value,
     };
 
-    console.log('[FORM DEBUG] Form data being sent:', formData);
-    console.log('[FORM DEBUG] Token:', token.substring(0, 20) + '...');
+    console.log('[FORM JS] Submitting form data:', formData);
 
     try {
-      const resp = await fetch('/form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      console.log('[FORM DEBUG] Response status:', resp.status);
+      // Get token from cookies (same as login.html stores it)
+      const name = 'access_token=';
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const cookies = decodedCookie.split(';');
+      let token = null;
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.indexOf(name) === 0) {
+          token = cookie.substring(name.length);
+          break;
+        }
+      }
       
-      if (resp.status === 401) {
-        alert('Session expired. Please login again.');
+      if (!token) {
+        alert('Trebuie să te autentifici pentru a continua.');
         window.location.href = '/';
         return;
       }
 
-      const result = await resp.json();
-      console.log('[FORM DEBUG] Response body:', result);
+      const response = await fetch('/form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-      if (!resp.ok) {
-        // Format validation errors
-        let errorMsg = `Error (${resp.status}): `;
-        if (result.detail) {
-          if (typeof result.detail === 'string') {
-            errorMsg += result.detail;
-          } else if (Array.isArray(result.detail)) {
-            // Pydantic validation errors
-            errorMsg = result.detail.map(e => {
-              const field = e.loc ? e.loc.join('.') : 'unknown';
-              const message = e.msg || 'validation error';
-              const type = e.type || '';
-              return `${field}: ${message} (type: ${type})`;
-            }).join('; ');
-          }
-        }
-        document.getElementById('errorMessage').innerHTML = `<strong>Validation Error:</strong><br>${errorMsg}<br><br><small>Check browser console (F12) for details</small>`;
-        document.getElementById('errorMessage').style.display = 'block';
-        console.error('[FORM DEBUG] Full error response:', JSON.stringify(result, null, 2));
+      console.log('[FORM JS] Response status:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('[FORM JS] Error response:', error);
+        alert(`Eroare: ${error.detail || 'A apărut o eroare la processing formularului'}`);
         return;
       }
 
-      console.log('[FORM DEBUG] Prediction successful:', result);
-      
-      // Display ML model prediction (0-10 stress level)
-      const mlPrediction = result.prediction || 5.0;  // ML model result
-      const symptomScore = result.score || 0;         // Symptom evaluation (0-1)
-      
-      // Convert stress level (0-10) to percentage (0-100) for visualization
-      const mlPercent = Math.round((mlPrediction / 10) * 100);
-      
-      let stressLevel = 'Scăzut';
-      let stressClass = 'low';
-      
-      if (mlPrediction < 3.3) {
-        stressLevel = 'Scăzut';
-        stressClass = 'low';
-      } else if (mlPrediction < 6.6) {
-        stressLevel = 'Moderat';
-        stressClass = 'medium';
-      } else {
-        stressLevel = 'Ridicat';
-        stressClass = 'high';
-      }
+      const result = await response.json();
+      console.log('[FORM JS] Result:', result);
 
-      document.getElementById('riskPercent').textContent = mlPercent + '%';
-      document.getElementById('riskLevel').textContent = stressLevel;
-      document.getElementById('riskMessage').textContent = `${result.message}\n\nML Model: ${mlPrediction.toFixed(1)}/10 | Simptome: ${(symptomScore * 10).toFixed(1)}/10`;
-      
-      // Update SVG path color class
-      const riskPath = document.getElementById('riskPath');
-      riskPath.setAttribute('stroke-dasharray', mlPercent + ', 100');
-      riskPath.className.baseVal = 'fg ' + stressClass;
-      
-      // Show result
-      document.getElementById('resultCard').style.display = 'block';
-      document.getElementById('errorMessage').style.display = 'none';
+      // Display result
+      displayResult(result);
     } catch (error) {
-      console.error('[FORM DEBUG] Network or parsing error:', error);
-      document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
-      document.getElementById('errorMessage').style.display = 'block';
+      console.error('[FORM JS] Fetch error:', error);
+      alert('Eroare de conexiune. Verifică conexiunea la internet și încearcă din nou.');
     }
+  });
+
+  function displayResult(result) {
+    const score = result.prediction;
+    const category = result.prediction_category;
+    const message = result.message;
+    const details = result.details || {};
+
+    // Update score
+    document.getElementById('resultScore').textContent = score.toFixed(1);
+
+    // Update circle progress (0-10 scale to percentage)
+    const percentage = (score / 10) * 100;
+    const circumference = 282.7;
+    const offset = circumference - (percentage / 100) * circumference;
+    document.getElementById('circleProgress').style.strokeDashoffset = offset;
+
+    // Update color based on score
+    const circleProgress = document.getElementById('circleProgress');
+    if (score < 3.5) {
+      circleProgress.style.stroke = '#26C281';
+    } else if (score < 6.5) {
+      circleProgress.style.stroke = '#FF9800';
+    } else {
+      circleProgress.style.stroke = '#FF5757';
+    }
+
+    // Update category
+    document.getElementById('resultCategory').textContent = category;
+
+    // Update message
+    document.getElementById('resultMessage').textContent = message;
+
+    // Update details
+    if (details && Object.keys(details).length > 0) {
+      document.getElementById('resultDetails').style.display = 'block';
+      document.getElementById('detailsBMI').textContent = details.bmi ? details.bmi.toFixed(1) : '-';
+      document.getElementById('detailsHeartRate').textContent = details.heart_rate ? details.heart_rate : '-';
+      document.getElementById('detailsSleepWeek').textContent = details.sleep_week ? details.sleep_week.toFixed(1) : '-';
+      document.getElementById('detailsCaffeineWeek').textContent = details.caffeine_week ? details.caffeine_week : '-';
+    }
+
+    // Show result section
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('stressForm').style.display = 'none';
+
+    // Scroll to result
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Check authentication on page load
-  checkAuthentication();
+  function resetForm() {
+    document.getElementById('stressForm').reset();
+    document.getElementById('resultSection').style.display = 'none';
+    document.getElementById('stressForm').style.display = 'grid';
+    document.getElementById('stressForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 </script>
 {% endblock %}

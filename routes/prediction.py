@@ -18,48 +18,44 @@ async def submit_form(
     current_user: dict = Depends(get_current_user),
 ):
     """
-    Submit form with symptoms and get risk score.
-    Uses rule-based logic for symptom interpretation.
+    Submit form with 14 features and get stress prediction with ML model.
+    New model has 14 features: coffee_cups, sleep_hours, sleep_quality, activity_hours,
+    height_cm, weight_kg, heart_rate, age, gender, country, occupation, smoking, alcohol, health_issues.
     """
     logger.info(f"[FORM DEBUG] Received FormSubmissionRequest for user {current_user['user_id']}")
-    logger.info(f"[FORM DEBUG] Form data: coffee_cups={req.coffee_cups}, caffeine_mg={req.caffeine_mg}, sleep_hours={req.sleep_hours}, sleep_quality={req.sleep_quality}, activity_hours={req.activity_hours}, age={req.age}, gender={req.gender}, smoker={req.smoker}, alcohol={req.alcohol}")
+    logger.info(f"[FORM DEBUG] Form data: coffee={req.coffee_cups}, sleep={req.sleep_hours}, sleep_quality={req.sleep_quality}, activity={req.activity_hours}")
+    logger.info(f"[FORM DEBUG] Physical: height={req.height_cm}cm, weight={req.weight_kg}kg, heart_rate={req.heart_rate}bpm")
+    logger.info(f"[FORM DEBUG] Personal: age={req.age}, gender={req.gender}, country={req.country}, occupation={req.occupation}")
+    logger.info(f"[FORM DEBUG] Lifestyle: smoking={req.smoking}, alcohol={req.alcohol}, health_issues={req.health_issues}")
     
     PredictionRepository.init_db()
 
-    symptoms = [
-        req.symptoms_palpitations_tremor,
-        req.symptoms_insomnia,
-        req.symptoms_agitation,
-        req.symptoms_concentration,
-        req.symptoms_headache,
-        req.symptoms_digestive,
-    ]
-
-    symptom_score, message = MLService.calculate_symptom_score(symptoms)
-    logger.info(f"[FORM DEBUG] Symptom score: {symptom_score}, message: {message}")
-
-    # Compute ML prediction with all 9 features
-    # Convert daily to weekly
-    coffee_intake_week = req.coffee_cups * 7
-    caffeine_mg_week = req.caffeine_mg * 7
-    sleep_hours_week = req.sleep_hours * 7
-    activity_hours_week = req.activity_hours
-    
-    logger.info(f"[FORM DEBUG] Weekly values: coffee={coffee_intake_week}, caffeine={caffeine_mg_week}, sleep={sleep_hours_week}, activity={activity_hours_week}")
-    logger.info(f"[FORM DEBUG] ML input: sleep_quality={req.sleep_quality.value}, gender={req.gender.value}, smoker={req.smoker.value}, alcohol={req.alcohol.value}")
-
-    ml_pred = MLService.predict_stress(
-        coffee_intake_week=coffee_intake_week,
-        caffeine_mg_week=caffeine_mg_week,
-        sleep_hours_week=sleep_hours_week,
-        sleep_quality=req.sleep_quality.value,
-        activity_hours_week=activity_hours_week,
-        age=req.age,
-        gender=req.gender.value,
-        smoking=req.smoker.value,
-        alcohol=req.alcohol.value,
-    )
-    logger.info(f"[FORM DEBUG] ML prediction result: {ml_pred}")
+    # Call ML service with all 14 features
+    # Returns tuple: (stress_score, category, details_dict, message)
+    try:
+        stress_score, category, details, message = MLService.predict_stress(
+            coffee_cups=req.coffee_cups,
+            sleep_hours=req.sleep_hours,
+            sleep_quality=req.sleep_quality.value,
+            activity_hours=req.activity_hours,
+            height_cm=req.height_cm,
+            weight_kg=req.weight_kg,
+            heart_rate=req.heart_rate,
+            age=req.age,
+            gender=req.gender.value,
+            occupation=req.occupation.value,
+            smoking=req.smoking.value,
+            alcohol=req.alcohol.value,
+            health_issues=req.health_issues.value,
+            country=req.country,
+        )
+        logger.info(f"[FORM DEBUG] ML prediction: stress={stress_score:.2f}/10, category={category}, message={message}")
+    except Exception as e:
+        logger.error(f"[FORM DEBUG] ML prediction error: {e}")
+        stress_score = 5.0
+        category = "Moderat"
+        message = "Eroare în predicție. Încercați din nou."
+        details = {}
 
     submission_id = PredictionRepository.save_prediction(
         user_id=current_user["user_id"],
@@ -67,16 +63,17 @@ async def submit_form(
         cesti_cafea_zi=req.coffee_cups,
         ore_somn=req.sleep_hours,
         nivel_stres=5,
-        predictie_stres=ml_pred,
-        symptom_score=symptom_score,
+        predictie_stres=stress_score,
+        symptom_score=stress_score / 10.0,
     )
     logger.info(f"[FORM DEBUG] Prediction saved with submission_id: {submission_id}")
 
     return FormSubmissionResponse(
-        score=symptom_score,
-        prediction=ml_pred,
+        prediction=stress_score,
+        prediction_category=category,
         message=message,
         submission_id=submission_id,
+        details=details,
     )
 
 @router.post("/predict", response_model=PredictionResponse)
