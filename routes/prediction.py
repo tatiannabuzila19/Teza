@@ -8,6 +8,8 @@ from models.schemas import (
 from services.auth_service import get_current_user, require_role
 from services.ml_service import MLService
 from db.predictions import PredictionRepository
+from db.evaluations import EvaluationRepository
+from typing import List, Dict
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -68,6 +70,32 @@ async def submit_form(
     )
     logger.info(f"[FORM DEBUG] Prediction saved with submission_id: {submission_id}")
 
+    # Also save to evaluations table
+    EvaluationRepository.init_db()
+    
+    # Map Romanian categories to English
+    stress_level_map = {
+        "Scăzut": "Low",
+        "Moderat": "Medium", 
+        "Ridicat": "High"
+    }
+    stress_level = stress_level_map.get(category, "Medium")
+    
+    # Calculate BMI
+    bmi = MLService.calculate_bmi(req.height_cm, req.weight_kg)
+    
+    evaluation_id = EvaluationRepository.save_evaluation(
+        user_id=current_user["user_id"],
+        coffee_intake_day=req.coffee_cups,
+        sleep_hours_night=req.sleep_hours,
+        bmi=bmi,
+        heart_rate=req.heart_rate,
+        stress_level=stress_level,
+        stress_score=stress_score,
+        physical_activity=req.activity_hours,
+    )
+    logger.info(f"[FORM DEBUG] Evaluation saved with evaluation_id: {evaluation_id}")
+
     return FormSubmissionResponse(
         prediction=stress_score,
         prediction_category=category,
@@ -109,3 +137,16 @@ async def predict_endpoint(
 async def get_my_predictions(current_user: dict = Depends(get_current_user)):
     """Fetch all predictions for the logged-in user."""
     return PredictionRepository.get_user_predictions(current_user["user_id"])
+
+@router.get("/api/history")
+async def get_history(current_user: dict = Depends(get_current_user)):
+    """Fetch evaluation history for the logged-in user."""
+    evaluations = EvaluationRepository.get_user_evaluations(current_user["user_id"])
+    weekly_data = EvaluationRepository.get_user_evaluations_last_week(current_user["user_id"])
+    weekly_comparison = EvaluationRepository.get_weekly_comparison(current_user["user_id"])
+    
+    return {
+        "evaluations": evaluations,
+        "weekly_data": weekly_data,
+        "weekly_comparison": weekly_comparison
+    }

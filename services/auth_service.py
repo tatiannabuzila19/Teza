@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 from typing import Optional, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Use pbkdf2_sha256 with explicit configuration
@@ -12,7 +12,7 @@ pwd_context = CryptContext(
     deprecated="auto",
     pbkdf2_sha256__rounds=29000  # NIST recommended minimum
 )
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 class AuthService:
     @staticmethod
@@ -60,9 +60,24 @@ class AuthService:
                 detail="Invalid token",
             )
 
-async def get_current_user(credentials: Any = Depends(security)) -> dict:
+async def get_current_user(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+) -> dict:
     """Dependency to extract and verify JWT from request."""
-    return AuthService.verify_token(credentials.credentials)
+    token = None
+    if credentials and credentials.credentials:
+        token = credentials.credentials
+    elif request.cookies.get("access_token"):
+        token = request.cookies.get("access_token")
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    return AuthService.verify_token(token)
 
 def require_role(*allowed_roles: str):
     """Dependency factory for role-based authorization."""

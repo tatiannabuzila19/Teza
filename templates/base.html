@@ -12,8 +12,9 @@
     <a href="/" class="brand">CoffeeRisk</a>
   </div>
   <div class="header-right">
-    <a href="/dashboard" class="nav-link">Dashboard</a>
-    <a href="/form" class="nav-link active">Formular</a>
+    <a href="/dashboard" class="nav-link{% if current_page == 'dashboard' %} active{% endif %}">Dashboard</a>
+    <a href="/form" class="nav-link{% if current_page == 'form' %} active{% endif %}">Formular</a>
+    <a href="/history" class="nav-link{% if current_page == 'history' %} active{% endif %}">Istoric</a>
     <a href="#" onclick="logout()" class="nav-link nav-primary">Delogare</a>
   </div>
 </header>

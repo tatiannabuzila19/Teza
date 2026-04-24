@@ -7,6 +7,7 @@ import logging
 from routes import auth, pages, prediction, dashboard
 from db.users import UserRepository
 from db.predictions import PredictionRepository
+from db.evaluations import EvaluationRepository
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 # Initialize databases
 UserRepository.init_db()
 PredictionRepository.init_db()
+EvaluationRepository.init_db()
 
 # Mount static files
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")

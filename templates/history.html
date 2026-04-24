@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <title>Istoric evaluări - Coffee Risk</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-left">
+    <a href="/" class="brand">CoffeeRisk</a>
+  </div>
+  <nav class="header-right">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="/form" class="nav-link">Evaluare personală</a>
+    <a href="/history" class="nav-link active">Istoric</a>
+    <a href="#" onclick="logout()" class="nav-link nav-primary">Delogare</a>
+  </nav>
+</header>
+
+<div class="wrapper">
+  <h1>ISTORIC EVALUĂRI STRES</h1>
+  <p class="subtitle">
+    Urmărește evoluția stresului tău și primește recomandări personalizate
+  </p>
+
+  <!-- Recommendations Section -->
+  <div id="recommendations" class="card" style="margin-bottom: 24px; display: none;">
+    <h3>Recomandări personalizate</h3>
+    <div id="recommendations-content"></div>
+  </div>
+
+  <!-- Weekly Trends -->
+  <div id="weekly-trends" class="card" style="margin-bottom: 24px; display: none;">
+    <h3>Comparație săptămânală</h3>
+    <div id="trends-content"></div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Evaluations History Table -->
+    <div class="card">
+      <h3>Istoric evaluări</h3>
+      <div style="overflow-x: auto;">
+        <table id="history-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: rgba(245, 158, 11, 0.1);">
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.2);">Data</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">Cafea/zi</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">Somn (h)</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">BMI</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">Stres</th>
+              <th style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">Scor</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <!-- Data will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stress Evolution Chart -->
+    <div class="card">
+      <h3>Evoluția stresului</h3>
+      <div style="height: 300px;">
+        <canvas id="stress-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Weekly Coffee Chart -->
+    <div class="card">
+      <h3>Consum cafea (ultima săptămână)</h3>
+      <div style="height: 300px;">
+        <canvas id="coffee-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Sleep Hours Chart -->
+    <div class="card">
+      <h3>Ore somn (ultima săptămână)</h3>
+      <div style="height: 300px;">
+        <canvas id="sleep-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let historyData = null;
+
+async function loadHistory() {
+  try {
+    const response = await fetch('/api/history');
+    if (!response.ok) throw new Error('Failed to load history');
+    
+    historyData = await response.json();
+    renderHistory();
+    renderCharts();
+    renderRecommendations();
+    renderWeeklyTrends();
+  } catch (error) {
+    console.error('Error loading history:', error);
+    document.getElementById('history-body').innerHTML = 
+      '<tr><td colspan="6" style="text-align: center; padding: 20px;">Eroare la încărcarea datelor</td></tr>';
+  }
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('history-body');
+  
+  if (!historyData.evaluations || historyData.evaluations.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Nu există evaluări încă</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = historyData.evaluations.map(eval => `
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        ${new Date(eval.date).toLocaleDateString('ro-RO')}
+      </td>
+      <td style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        ${eval.coffee_intake_day}
+      </td>
+      <td style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        ${eval.sleep_hours_night}
+      </td>
+      <td style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        ${eval.bmi}
+      </td>
+      <td style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <span style="color: ${getStressColor(eval.stress_level)};">${eval.stress_level}</span>
+      </td>
+      <td style="padding: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        ${eval.stress_score.toFixed(1)}/10
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getStressColor(level) {
+  switch(level.toLowerCase()) {
+    case 'low': return '#10b981';
+    case 'medium': return '#f59e0b';
+    case 'high': return '#ef4444';
+    default: return '#6b7280';
+  }
+}
+
+function renderCharts() {
+  if (!historyData.evaluations || historyData.evaluations.length === 0) return;
+  
+  // Stress evolution chart
+  const stressCtx = document.getElementById('stress-chart').getContext('2d');
+  const stressData = historyData.evaluations.slice(-10); // Last 10 evaluations
+  
+  new Chart(stressCtx, {
+    type: 'line',
+    data: {
+      labels: stressData.map(d => new Date(d.date).toLocaleDateString('ro-RO')),
+      datasets: [{
+        label: 'Scor stres',
+        data: stressData.map(d => d.stress_score),
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 10,
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: { color: '#fdf5e6' }
+        },
+        x: {
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          ticks: { color: '#fdf5e6' }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#fdf5e6' } }
+      }
+    }
+  });
+  
+  // Weekly coffee chart
+  if (historyData.weekly_data && historyData.weekly_data.length > 0) {
+    const coffeeCtx = document.getElementById('coffee-chart').getContext('2d');
+    
+    new Chart(coffeeCtx, {
+      type: 'bar',
+      data: {
+        labels: historyData.weekly_data.map(d => new Date(d.date).toLocaleDateString('ro-RO')),
+        datasets: [{
+          label: 'Cești cafea',
+          data: historyData.weekly_data.map(d => d.coffee_intake_day),
+          backgroundColor: 'rgba(245, 158, 11, 0.6)',
+          borderColor: '#f59e0b',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fdf5e6' }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fdf5e6' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#fdf5e6' } }
+        }
+      }
+    });
+    
+    // Sleep hours chart
+    const sleepCtx = document.getElementById('sleep-chart').getContext('2d');
+    
+    new Chart(sleepCtx, {
+      type: 'line',
+      data: {
+        labels: historyData.weekly_data.map(d => new Date(d.date).toLocaleDateString('ro-RO')),
+        datasets: [{
+          label: 'Ore somn',
+          data: historyData.weekly_data.map(d => d.sleep_hours_night),
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fdf5e6' }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#fdf5e6' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#fdf5e6' } }
+        }
+      }
+    });
+  }
+}
+
+function renderRecommendations() {
+  if (!historyData.evaluations || historyData.evaluations.length === 0) return;
+  
+  const latest = historyData.evaluations[0]; // Most recent
+  const recommendations = [];
+  
+  if (latest.coffee_intake_day > 4) {
+    recommendations.push("⚠️ Consumul de cafea este ridicat (>4 căni/zi). Cafeina poate crește nivelul de stres.");
+  }
+  
+  if (latest.sleep_hours_night < 7) {
+    recommendations.push("⚠️ Dormi prea puțin (<7 ore/noapte). Somnul insuficient afectează sănătatea mentală.");
+  }
+  
+  if (latest.stress_level.toLowerCase() === 'high') {
+    recommendations.push("🚨 Nivel stres ridicat! Redu consumul de cafea și consultă un specialist.");
+  }
+  
+  if (latest.physical_activity < 3) {
+    recommendations.push("💪 Activitate fizică insuficientă (<3 ore/săptămână). Mișcarea regulată reduce stresul.");
+  }
+  
+  if (recommendations.length > 0) {
+    document.getElementById('recommendations-content').innerHTML = 
+      recommendations.map(r => `<p style="margin: 8px 0;">${r}</p>`).join('');
+    document.getElementById('recommendations').style.display = 'block';
+  }
+}
+
+function renderWeeklyTrends() {
+  if (!historyData.weekly_comparison) return;
+  
+  const comp = historyData.weekly_comparison;
+  if (!comp.this_week || !comp.last_week) return;
+  
+  const trends = [];
+  
+  const coffeeChange = comp.this_week.avg_coffee - comp.last_week.avg_coffee;
+  if (Math.abs(coffeeChange) > 0.5) {
+    const direction = coffeeChange > 0 ? 'creștere' : 'scădere';
+    trends.push(`☕ Consum cafea: ${direction} (${coffeeChange > 0 ? '+' : ''}${coffeeChange.toFixed(1)} căni/zi)`);
+  }
+  
+  const sleepChange = comp.this_week.avg_sleep - comp.last_week.avg_sleep;
+  if (Math.abs(sleepChange) > 0.5) {
+    const direction = sleepChange > 0 ? 'îmbunătățire' : 'înrăutățire';
+    trends.push(`😴 Somn: ${direction} (${sleepChange > 0 ? '+' : ''}${sleepChange.toFixed(1)} ore)`);
+  }
+  
+  const activityChange = comp.this_week.avg_activity - comp.last_week.avg_activity;
+  if (Math.abs(activityChange) > 0.5) {
+    const direction = activityChange > 0 ? 'creștere' : 'scădere';
+    trends.push(`🏃 Activitate: ${direction} (${activityChange > 0 ? '+' : ''}${activityChange.toFixed(1)} ore/săpt.)`);
+  }
+  
+  const stressChange = comp.this_week.avg_stress - comp.last_week.avg_stress;
+  if (Math.abs(stressChange) > 0.5) {
+    const direction = stressChange > 0 ? 'creștere' : 'scădere';
+    trends.push(`📊 Stres: ${direction} (${stressChange > 0 ? '+' : ''}${stressChange.toFixed(1)} puncte)`);
+  }
+  
+  if (trends.length > 0) {
+    document.getElementById('trends-content').innerHTML = 
+      trends.map(t => `<p style="margin: 8px 0;">${t}</p>`).join('');
+    document.getElementById('weekly-trends').style.display = 'block';
+  }
+}
+
+function getToken() {
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'access_token') return value;
+  }
+  return null;
+}
+
+function logout() {
+  document.cookie = 'access_token=; path=/; max-age=0';
+  window.location.href = '/';
+}
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
+
+</body>
+</html>

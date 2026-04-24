@@ -53,3 +53,10 @@ async def form_page(request: Request):
     if not is_authenticated(request):
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("form.html", {"request": request})
+
+@router.get("/history", response_class=HTMLResponse)
+async def history_page(request: Request):
+    """Serve history page - requires authentication."""
+    if not is_authenticated(request):
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse("history.html", {"request": request})

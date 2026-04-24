@@ -18,7 +18,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # ML Model
-MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(BASE_DIR, "model_random_forest.pkl"))
+MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(BASE_DIR, "stress_model_rf.joblib"))
 
 # Validation ranges
 AGE_MIN, AGE_MAX = 18, 100
