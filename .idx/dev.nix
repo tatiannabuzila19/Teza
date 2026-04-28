@@ -1,0 +1,63 @@
+# To learn more about how to use Nix to configure your environment
+# see: https://firebase.google.com/docs/studio/customize-workspace
+{ pkgs, ... }: {
+  # Which nixpkgs channel to use.
+  channel = "stable-24.05"; # or "unstable"
+
+  # Use https://search.nixos.org/packages to find packages
+  packages = [
+    pkgs.python311
+    pkgs.python311Packages.pip
+    pkgs.python311Packages.fastapi
+    pkgs.python311Packages.uvicorn
+    pkgs.python311Packages.jinja2
+    pkgs.python311Packages.joblib
+    pkgs.python311Packages.numpy
+    pkgs.python311Packages.scikit-learn
+    pkgs.python311Packages.pydantic
+    pkgs.python311Packages.python-jose
+    pkgs.python311Packages.passlib
+    pkgs.python311Packages.bcrypt
+    pkgs.python311Packages.python-dotenv
+    pkgs.python311Packages.pandas
+    pkgs.python311Packages.openpyxl
+  ];
+
+  # Sets environment variables in the a workspace
+  env = {};
+  idx = {
+    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
+    extensions = [
+      # "vscodevim.vim"
+    ];
+
+    # Enable previews
+    previews = {
+      enable = true;
+      previews = {
+        # web = {
+        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
+        #   # and show it in IDX's web preview panel
+        #   command = ["npm" "run" "dev"];
+        #   manager = "web";
+        #   env = {
+        #     # Environment variables to set for your server
+        #     PORT = "$PORT";
+        #   };
+        # };
+      };
+    };
+
+    # Workspace lifecycle hooks
+    workspace = {
+      # Runs when a workspace is first created
+      onCreate = {
+      };
+      # Runs when the workspace is (re)started
+      onStart = {
+        # Example: start a background task to watch and re-build backend code
+        # watch-backend = "npm run watch-backend";
+      };
+    };
+  };
+}

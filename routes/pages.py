@@ -3,11 +3,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from services.auth_service import AuthService
 import os
+from jinja2 import Environment, FileSystemLoader
 
 router = APIRouter()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+template_dir = os.path.join(BASE_DIR, "templates")
+env = Environment(loader=FileSystemLoader(template_dir))
 
 def get_token_from_request(request: Request) -> str:
     """Extract JWT token from cookies or headers."""
@@ -38,25 +40,29 @@ async def home(request: Request):
     # If already authenticated, redirect to dashboard
     if is_authenticated(request):
         return RedirectResponse(url="/dashboard", status_code=303)
-    return templates.TemplateResponse("login.html", {"request": request})
+    template = env.get_template("login.html")
+    return HTMLResponse(template.render(request=request))
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
     """Serve dashboard page - requires authentication."""
     if not is_authenticated(request):
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    template = env.get_template("dashboard.html")
+    return HTMLResponse(template.render(request=request))
 
 @router.get("/form", response_class=HTMLResponse)
 async def form_page(request: Request):
     """Serve form page - requires authentication."""
     if not is_authenticated(request):
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("form.html", {"request": request})
+    template = env.get_template("form.html")
+    return HTMLResponse(template.render(request=request))
 
 @router.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
     """Serve history page - requires authentication."""
     if not is_authenticated(request):
         return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("history.html", {"request": request})
+    template = env.get_template("history.html")
+    return HTMLResponse(template.render(request=request))

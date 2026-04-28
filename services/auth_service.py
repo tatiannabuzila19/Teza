@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Optional, Any
 from jose import JWTError, jwt
@@ -5,6 +6,9 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Use pbkdf2_sha256 with explicit configuration
 pwd_context = CryptContext(
@@ -22,10 +26,9 @@ class AuthService:
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         try:
-            result = pwd_context.verify(plain_password, hashed_password)
-            return result
+            return pwd_context.verify(plain_password, hashed_password)
         except Exception as e:
-            print(f"Password verification error: {e}")
+            logger.error(f"Password verification error: {e}")
             return False
 
     @staticmethod

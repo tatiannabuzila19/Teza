@@ -1,0 +1,262 @@
+
+.container {
+    max-width: 800px;
+    margin: 80px auto 20px;
+    padding: 20px;
+}
+
+.form-section {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 2em;
+    text-align: center;
+}
+
+.form-subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+}
+
+.stress-form {
+    display: grid;
+    gap: 25px;
+}
+
+.form-block {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    background: #f8f9fa;
+}
+
+.block-title {
+    color: #26C281;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
+.form-input,
+select {
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    color: #333;
+    font-size: 0.95em;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+select:focus {
+    outline: none;
+    border-color: #26C281;
+    background: #ffffff;
+    box-shadow: 0 0 10px rgba(38, 194, 129, 0.3);
+}
+
+.input-hint {
+    color: #666;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+select {
+    cursor: pointer;
+}
+
+select option {
+    background: #ffffff;
+    color: #333;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #26C281 0%, #20a76a 100%);
+    color: #ffffff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 1.05em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(38, 194, 129, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-new-form {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-new-form:hover {
+    background: #e9ecef;
+    border-color: #aaa;
+}
+
+.result-section {
+    margin-top: 40px;
+}
+
+.result-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.result-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 40px;
+    border: 1px solid #e0e0e0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.result-score-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.result-circle {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.circle-background {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 8;
+}
+
+.circle-progress {
+    fill: none;
+    stroke: #26C281;
+    stroke-width: 8;
+    stroke-dasharray: 282.7;
+    stroke-dashoffset: 282.7;
+    transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+}
+
+.result-score-text {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-score-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #26C281;
+}
+
+.result-score-unit {
+    color: #666;
+    margin-top: 5px;
+}
+
+.result-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-category {
+    color: #26C281;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+.result-message {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.result-details {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.result-details h4 {
+    color: #26C281;
+    margin-bottom: 10px;
+}
+
+.result-details ul {
+    list-style: none;
+    padding: 0;
+}
+
+.result-details li {
+    color: #333;
+    margin-bottom: 8px;
+    padding-left: 10px;
+}
+
+@media (max-width: 768px) {
+    .result-card {
+        grid-template-columns: 1fr;
+    }
+
+    .result-score-container {
+        width: 150px;
+        height: 150px;
+    }
+
+    .result-score-number {
+        font-size: 2em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+}

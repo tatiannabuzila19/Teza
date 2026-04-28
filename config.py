@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Database paths
 COFFEE_DB = os.getenv(
     "COFFEE_DB_PATH",
-    "C:/Users/tatia/Desktop/Anul 3/Teza de licenta/coffee-risk-evaluator/coffee_data.db"
+    os.path.join(BASE_DIR, "coffee_data.db")
 )
 STRES_DB = os.getenv("STRES_DB_PATH", os.path.join(BASE_DIR, "stres.db"))
 
@@ -18,7 +18,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # ML Model
-MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(BASE_DIR, "stress_model_rf.joblib"))
+MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(BASE_DIR, "model_random_forest.pkl"))
 
 # Validation ranges
 AGE_MIN, AGE_MAX = 18, 100

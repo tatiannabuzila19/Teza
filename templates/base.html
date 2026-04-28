@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>{% block title %}Coffee Risk{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
+  {% if current_page == 'form' %}
+  <link rel="stylesheet" href="/static/form.css">
+  {% endif %}
 </head>
-<body class="form-page">
+<body>
 
 <header class="main-header">
   <div class="header-left">

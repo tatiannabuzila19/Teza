@@ -1,10 +1,14 @@
 import joblib
 import pandas as pd
 import numpy as np
+import logging
 from config import MODEL_PATH, GENDER_OPTIONS, COUNTRY_OPTIONS, OCCUPATION_OPTIONS, SLEEP_QUALITY_OPTIONS, HEALTH_ISSUES_OPTIONS
 import warnings
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 class MLService:
     _model = None
@@ -19,10 +23,10 @@ class MLService:
         try:
             cls._model = joblib.load(MODEL_PATH)
             cls._model_loaded = True
-            print(f"[ML SERVICE] ✓ Model loaded successfully from {MODEL_PATH}")
+            logger.info(f"[ML SERVICE] ✓ Model loaded successfully from {MODEL_PATH}")
             return cls._model
         except Exception as e:
-            print(f"[ML SERVICE] ✗ Could not load model: {e}")
+            logger.error(f"[ML SERVICE] ✗ Could not load model: {e}")
             cls._model = None
             cls._model_loaded = True
             return None
@@ -110,7 +114,7 @@ class MLService:
         model = MLService.load_model()
         
         if model is None:
-            print(f"[ML SERVICE] ✗ Model not available, using fallback")
+            logger.error(f"[ML SERVICE] ✗ Model not available, using fallback")
             return (5.0, "Moderat", {"error": "Model not loaded"}, "Model indisponibil. Încercați din nou.")
         
         try:
@@ -149,18 +153,18 @@ class MLService:
                 'Alcohol_Consumption': [alcohol_encoded],
             })
             
-            print(f"\n[ML SERVICE] ========== STRESS PREDICTION ==========")
-            print(f"[ML SERVICE] Input features (14 total):")
+            logger.info(f"\n[ML SERVICE] ========== STRESS PREDICTION ==========")
+            logger.info(f"[ML SERVICE] Input features (14 total):")
             for col in features_df.columns:
-                print(f"  - {col}: {features_df[col].values[0]} ({features_df[col].dtype})")
-            print(f"[ML SERVICE] Model type: {type(model).__name__}")
+                logger.info(f"  - {col}: {features_df[col].values[0]} ({features_df[col].dtype})")
+            logger.info(f"[ML SERVICE] Model type: {type(model).__name__}")
             
             # Get probabilities for refined prediction
             if hasattr(model, 'predict_proba'):
                 proba = model.predict_proba(features_df)[0]
                 classes = model.classes_
-                print(f"[ML SERVICE] Prediction classes: {classes}")
-                print(f"[ML SERVICE] Prediction probabilities: {proba}")
+                logger.info(f"[ML SERVICE] Prediction classes: {classes}")
+                logger.info(f"[ML SERVICE] Prediction probabilities: {proba}")
                 
                 # Map classes to stress levels on a 1-10 scale
                 class_to_stress = {}
@@ -180,14 +184,14 @@ class MLService:
                 
                 # Ensure the score never perfectly exceeds 10 or drops below 0 just in case
                 stress_score = max(1.0, min(10.0, stress_score))
-                print(f"[ML SERVICE] Weighted stress score: {stress_score:.2f}/10")
+                logger.info(f"[ML SERVICE] Weighted stress score: {stress_score:.2f}/10")
             else:
                 # Fallback to direct prediction
                 raw_pred = model.predict(features_df)[0]
-                print(f"[ML SERVICE] Raw prediction: {raw_pred}")
+                logger.info(f"[ML SERVICE] Raw prediction: {raw_pred}")
                 pred_map = {'Low': 1.5, 'Medium': 5.0, 'High': 9.5}
                 stress_score = pred_map.get(str(raw_pred).title(), 5.0)
-                print(f"[ML SERVICE] Mapped prediction: {stress_score}/10")
+                logger.info(f"[ML SERVICE] Mapped prediction: {stress_score}/10")
             
             # Categorize result
             if stress_score < 3.5:
@@ -214,13 +218,11 @@ class MLService:
                 'sleep_week': sleep_week,
             }
             
-            print(f"[ML SERVICE] ✓ Prediction: {stress_score:.2f}/10 ({category})")
-            print(f"[ML SERVICE] =============================================\n")
+            logger.info(f"[ML SERVICE] ✓ Prediction: {stress_score:.2f}/10 ({category})")
+            logger.info(f"[ML SERVICE] =============================================\n")
             
             return (float(stress_score), category, details, message)
             
         except Exception as e:
-            print(f"[ML SERVICE] ✗ Prediction error: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.exception(f"[ML SERVICE] ✗ Prediction error: {e}")
             return (5.0, "Moderat", {"error": str(e)}, "Eroare în predicție. Încercați din nou.")
