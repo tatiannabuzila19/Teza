@@ -2,27 +2,38 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Coffee Risk{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
   {% if current_page == 'form' %}
   <link rel="stylesheet" href="/static/form.css">
   {% endif %}
+  {% block head_extra %}{% endblock %}
 </head>
-<body>
+<body class="app-body {% block body_class %}{% endblock %}">
 
 <header class="main-header">
   <div class="header-left">
     <a href="/" class="brand">CoffeeRisk</a>
+    <span class="brand-subtitle">Insight stres & sănătate</span>
   </div>
-  <div class="header-right">
+
+  <nav class="header-right">
     <a href="/dashboard" class="nav-link{% if current_page == 'dashboard' %} active{% endif %}">Dashboard</a>
     <a href="/form" class="nav-link{% if current_page == 'form' %} active{% endif %}">Formular</a>
     <a href="/history" class="nav-link{% if current_page == 'history' %} active{% endif %}">Istoric</a>
     <a href="#" onclick="logout()" class="nav-link nav-primary">Delogare</a>
-  </div>
+  </nav>
 </header>
 
-{% block content %}{% endblock %}
+<main class="app-shell">
+  {% block hero %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="app-footer">
+  <div class="footer-copy">CoffeeRisk • Evaluare personalizată a stresului</div>
+</footer>
 
 <script>
   function getToken() {
@@ -50,6 +61,8 @@
 
   window.addEventListener("load", checkAuthentication);
 </script>
+
+{% block scripts %}{% endblock %}
 
 </body>
 </html>
